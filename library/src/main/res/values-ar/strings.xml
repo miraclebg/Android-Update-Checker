@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="last_update_test_preferences">Last_Update_Check</string>
+
+    <string name="ok">تم</string>
+    <string name="yes">نعم</string>
+    <string name="no">لا</string>
+
+    <string name="please_wait">الرجاء الانتظار </string>
+    <string name="loading">جاري التحميل &#8230;</string>
+    <string name="update_test">جاري البحث عن التحديثات&#8230;</string>
+
+    <string name="you_are_updated_title">تم التحديث </string>
+    <string name="you_are_not_updated_title">التطبيق غير</string>
+    <string name="you_are_updated_message">لديكي أحدث نسخه من التطبيق </string>
+    <string name="you_are_not_updated_message">اضغطي نعم لتحديث التطبيق . اضغطي لا للخروج</string>
+</resources>
