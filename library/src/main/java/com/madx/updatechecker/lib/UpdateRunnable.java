@@ -26,6 +26,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.widget.Button;
 
 import com.madx.updatechecker.lib.utils.orientation.OrientationUtils;
 import com.madx.updatechecker.lib.utils.versioning.DefaultArtifactVersion;
@@ -93,6 +94,8 @@ public class UpdateRunnable implements Runnable {
      */
     private ProgressDialog progress_dialog;
 
+    private int buttonColor;
+
     /**
      * Updater Runnable constructor
      *
@@ -105,10 +108,10 @@ public class UpdateRunnable implements Runnable {
         this.context = activity.getApplicationContext();
         this.handler = handler;
         this.package_name = context.getPackageName();
-        String current_version = new String();
+        String current_version = "";
         try {
             current_version = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
-        } catch (NameNotFoundException e) {
+        } catch (NameNotFoundException ignored) {
         } finally {
             this.current_version = current_version;
         }
@@ -152,24 +155,31 @@ public class UpdateRunnable implements Runnable {
         new Thread(this).start();
     }
 
+    public UpdateRunnable setButtonTextColor(int buttonColor) {
+        this.buttonColor = buttonColor;
+        return this;
+    }
+
     /**
      * Runs the asynchronous web  call and shows on the UI the Dialogs if required
      */
     @Override
     public void run() {
+
         // Shows a waiting dialog
-        handler.post(new Runnable() {
-            public void run() {
-                if (force) {
-                    OrientationUtils.lockOrientation(activity);
-                    progress_dialog = ProgressDialog.show(activity,
-                            context.getResources().getText(R.string.please_wait),
-                            context.getResources().getText(R.string.update_test),
-                            true,
-                            false);
-                }
-            }
-        });
+//        handler.post(new Runnable() {
+//            public void run() {
+//                if (force) {
+//                    OrientationUtils.lockOrientation(activity);
+//                    progress_dialog = ProgressDialog.show(activity,
+//                            context.getResources().getText(R.string.please_wait),
+//                            context.getResources().getText(R.string.update_test),
+//                            true,
+//                            false);
+//                }
+//            }
+//        });
+
         // Extract from the Internet if an update is needed or not
         update_available = update_available();
         // Manages the Dialog UI
@@ -179,13 +189,17 @@ public class UpdateRunnable implements Runnable {
                     progress_dialog.dismiss();
                 }
 
+//                if (update_available) {
+//                    OrientationUtils.lockOrientation(activity);
+//                    show_dialog_you_are_not_updated();
+//                } else {
+//                    if (force) {
+//                        show_dialog_you_are_updated();
+//                    }
+//                }
+
                 if (update_available) {
-                    OrientationUtils.lockOrientation(activity);
                     show_dialog_you_are_not_updated();
-                } else {
-                    if (force) {
-                        show_dialog_you_are_updated();
-                    }
                 }
             }
         });
@@ -215,14 +229,19 @@ public class UpdateRunnable implements Runnable {
      * @return true if an update is required, false otherwise
      */
     private boolean web_update() {
+
+        // TODO: test this
         try {
-            String new_version = Jsoup.connect("https://play.google.com/store/apps/details?id=" + package_name + "&hl=it")
+            String new_version = Jsoup.connect("https://play.google.com/store/apps/details?id=" + package_name + "&hl=en")
                     .timeout(30000)
                     .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                     .referrer("http://www.google.com")
                     .get()
                     .select("div[itemprop=softwareVersion]")
                     .first()
+                    // TODO: test
+//                    .select(".hAyfc .htlgb")
+//                    .get(5)
                     .ownText();
             return newer_version_available(current_version, new_version);
         } catch (Exception e) {
@@ -240,12 +259,14 @@ public class UpdateRunnable implements Runnable {
         alertDialogBuilder.setMessage(context.getString(R.string.you_are_not_updated_message));
         alertDialogBuilder.setIcon(getCloudDrawable());
         alertDialogBuilder.setCancelable(false);
+
         alertDialogBuilder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 dialog.cancel();
                 OrientationUtils.unlockOrientation(activity);
             }
         });
+
         alertDialogBuilder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 activity.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + package_name)));
@@ -253,7 +274,24 @@ public class UpdateRunnable implements Runnable {
                 OrientationUtils.unlockOrientation(activity);
             }
         });
-        alertDialogBuilder.show();
+
+        AlertDialog dialog = alertDialogBuilder.create();
+        dialog.show();
+
+        if (buttonColor > 0) {
+
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+            if (negativeButton != null) {
+                negativeButton.setTextColor(buttonColor);
+            }
+
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+
+            if (positiveButton != null) {
+                positiveButton.setTextColor(buttonColor);
+            }
+        }
     }
 
     /**
@@ -272,27 +310,38 @@ public class UpdateRunnable implements Runnable {
                 OrientationUtils.unlockOrientation(activity);
             }
         });
-        alertDialogBuilder.show();
+
+        AlertDialog dialog = alertDialogBuilder.create();
+        dialog.show();
+
+        if (buttonColor > 0) {
+
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+
+            if (positiveButton != null) {
+                positiveButton.setTextColor(buttonColor);
+            }
+        }
     }
 
-    private int getCloudDrawable(){
+    private int getCloudDrawable() {
         return light_theme ? R.drawable.ic_action_collections_cloud_light : R.drawable.ic_action_collections_cloud_dark;
     }
 
     /**
      * Used for comparing different versions of software
-     * @param local_version_string the version name of the app installed on the system
+     *
+     * @param local_version_string  the version name of the app installed on the system
      * @param online_version_string the version name of the app released on the Google Play
      * @return true if a the online_version_string is greater than the local_version_string
      */
-    private static boolean newer_version_available(String local_version_string, String online_version_string){
+    private static boolean newer_version_available(String local_version_string, String online_version_string) {
         DefaultArtifactVersion local_version_mvn = new DefaultArtifactVersion(local_version_string);
         DefaultArtifactVersion online_version_mvn = new DefaultArtifactVersion(online_version_string);
-        return local_version_mvn.compareTo(online_version_mvn) == -1 && !local_version_string.equals(new String());
+        return local_version_mvn.compareTo(online_version_mvn) < 0 && !local_version_string.equals("");
     }
 
     /**
-     * @param context
      * @return the value of preference which represents the last time you verify if an update exists
      */
     private static long getLastTimeTriedUpdate(Context context) {
@@ -301,18 +350,15 @@ public class UpdateRunnable implements Runnable {
 
     /**
      * Sets the value of preference which represents the last time you verify if an update exists = the currentTimeMillis in which that function is called
-     *
-     * @param context
      */
     private static void setLastTimeTriedUpdate(Context context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(getLastUpdateTestKey(context), System.currentTimeMillis()).commit();
     }
 
     /**
-     * @param context
      * @return the key String of the Last Update Preference
      */
-    private static String getLastUpdateTestKey(Context context){
+    private static String getLastUpdateTestKey(Context context) {
         return context.getString(R.string.last_update_test_preferences) + "_" + context.getPackageName();
     }
 
