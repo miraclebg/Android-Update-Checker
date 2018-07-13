@@ -116,7 +116,7 @@ If you are using Proguard you have to add the following lines to your Proguard r
 ## License
 
 If you use Android Update Checker code in your application you should inform the author about it ( *email: daniele.maddaluno[at]gmail[dot]com* ) like this:
-> **Subject:** AUC usage notification<br />
+> **Subject:** AUC usage userNotification<br />
 > **Text:** I use Android Update Checker &lt;lib_version> in &lt;application_name> - http://link_to_google_play.
 > I [allow | don't allow] to mention my app in section "Applications using Android Update Checker" on GitHub.
 
