@@ -352,7 +352,7 @@ public class UpdateRunnable implements Runnable {
      * Sets the value of preference which represents the last time you verify if an update exists = the currentTimeMillis in which that function is called
      */
     private static void setLastTimeTriedUpdate(Context context) {
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(getLastUpdateTestKey(context), System.currentTimeMillis()).commit();
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putLong(getLastUpdateTestKey(context), System.currentTimeMillis()).apply();
     }
 
     /**
