@@ -11,7 +11,9 @@ android {
 
     defaultConfig {
         //applicationId "com.madx.updatechecker.lib"
+        //noinspection GroovyAccessibility
         minSdkVersion Integer.parseInt(project.ANDROID_BUILD_MIN_SDK_VERSION)
+        //noinspection GroovyAccessibility
         targetSdkVersion Integer.parseInt(project.ANDROID_BUILD_TARGET_SDK_VERSION)
         versionCode 3
         versionName "1.0.2"
